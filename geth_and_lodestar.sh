@@ -46,7 +46,6 @@ function PrepareEnvironment() {
 	KillAll
 	
 	git clean -fxd
-	rm execution/bootnodes.txt consensus/bootnodes.txt
 
 	test -d logs || mkdir logs
 
@@ -54,12 +53,12 @@ function PrepareEnvironment() {
 }
 function PrepareEnvironment_Client {
 	PrepareEnvironment
-	scp $Server:/root/mergednet/execution/genesis.json execution/
-	scp $Server:/root/mergednet/execution/bootnodes.txt execution/
-	
-	scp $Server:/root/mergednet/consensus/config.yaml consensus/
-	scp $Server:/root/mergednet/consensus/genesis.ssz  consensus/
-	scp $Server:/root/mergednet/consensus/bootnodes.txt  consensus/
+	#scp $Server:/root/mergednet/execution/genesis.json execution/
+	#scp $Server:/root/mergednet/execution/bootnodes.txt execution/
+	#
+	#scp $Server:/root/mergednet/consensus/config.yaml consensus/
+	#scp $Server:/root/mergednet/consensus/genesis.ssz  consensus/
+	#scp $Server:/root/mergednet/consensus/bootnodes.txt  consensus/
 }
 function InitGeth()
 {
@@ -88,6 +87,7 @@ function RunGeth()
 	  --syncmode full \
 	  --bootnodes=$bootnodes \
 	  > ./logs/geth_$1.log &
+	sleep 5
 }
 function RunBeacon() {
 	Log "Running Beacon $1"
@@ -95,7 +95,6 @@ function RunBeacon() {
 	echo "Beacon Bootnodes = $bootnodes"
 	
 	nohup clients/lodestar beacon \
-	  --suggestedFeeRecipient "0xCaA29806044A08E533963b2e573C1230A2cd9a2d" \
 	  --execution.urls "http://127.0.0.1:$((8551 + $1))" \
 	  --jwt-secret "./data/execution/$1/geth/jwtsecret" \
 	  --dataDir "./data/consensus/$1" \
@@ -108,6 +107,7 @@ function RunBeacon() {
 	  --logLevel $LogLevel \
 	  --bootnodes=$bootnodes \
 	  > ./logs/beacon_$1.log &
+	sleep 5
 }
 
 function StartClient {
@@ -129,11 +129,7 @@ function StartClient {
 StartClient
 echo "
 clear && tail -f logs/geth_0.log -n1000
-clear && tail -f logs/geth_1.log -n1000
 clear && tail -f logs/beacon_0.log -n1000
-clear && tail -f logs/beacon_1.log -n1000
-clear && tail -f logs/validator_0.log -n1000
-clear && tail -f logs/validator_1.log -n1000
 
 curl http://localhost:9596/eth/v1/node/identity | jq
 curl http://localhost:9596/eth/v1/node/peers | jq
