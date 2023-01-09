@@ -1,5 +1,5 @@
 NodesCount=2
-LogLevel=debug
+LogLevel=info
 ######## Checker Functions
 function Log() {
 	echo
@@ -110,7 +110,7 @@ function RunGeth()
 	#export $variablename=`geth attach --exec "admin.nodeInfo.enode" data/execution/$1/geth.ipc | sed s/^\"// | sed s/\"$//`
 	#Log "$variablename = ${!variablename}"
 	#echo ${!variablename} >> execution/bootnodes.txt
-	local my_enode=$(geth attach --exec "admin.nodeInfo.enode" data/execution/$1/geth.ipc | sed s/^\"// | sed s/\"$//)
+	local my_enode=$(geth attach --exec "admin.nodeInfo.enode" data/execution/$1/geth.ipc | sed s/^\"// | sed s/\"$// | sed s/'127.0.0.1'/$my_ip/)
 	echo $my_enode >> execution/bootnodes.txt
 }
 function StoreGethHash() {
